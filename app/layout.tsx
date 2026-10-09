@@ -19,8 +19,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="bn">
-      <body className={`${hindSiliguri.className} flex flex-col min-h-screen bg-gray-50`}>
+    <html lang="bn" suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={`${hindSiliguri.className} flex flex-col min-h-screen bg-gray-50`}
+      >
         <Navbar />
         <main className="flex-grow">{children}</main>
         <Footer />
