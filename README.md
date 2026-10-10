@@ -4,7 +4,7 @@ A responsive Bengali-language market price app for checking everyday grocery pri
 
 ## 🔗 Links
 
-- **Live Site:** 
+- **Live Site:** https://assignment7-ph.vercel.app/
 - **GitHub Repository:** https://github.com/shahedminhaj/Assignment7_PH.git
 
 ## 🛠️ Technologies Used
@@ -27,3 +27,4 @@ A responsive Bengali-language market price app for checking everyday grocery pri
 5. **Protected Product Details Page** — Requires login. Shows min/max/average price and market-by-market price summary.
 6. **Price Ticker (Marquee)** — Infinite scrolling strip under the navbar with emoji + name + price + change percentage.
 7. **Profile Update** — Logged-in users can update their display name via Better Auth's update user API.
+

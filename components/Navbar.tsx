@@ -1,28 +1,39 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { authClient, useSession } from '@/lib/auth-client';
 import { categories } from '@/lib/data';
 
+const dateOptions: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+};
+
+function subscribeToDate() {
+  return () => {};
+}
+
+function getBengaliDate() {
+  return new Date().toLocaleDateString('bn-BD', dateOptions);
+}
+
+function getServerDate() {
+  return '';
+}
+
 export default function Navbar() {
-  const [bengaliDate, setBengaliDate] = useState('');
+  const bengaliDate = useSyncExternalStore(
+    subscribeToDate,
+    getBengaliDate,
+    getServerDate,
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const { data: session, isPending } = useSession();
-
-  useEffect(() => {
-    const today = new Date();
-    setBengaliDate(
-      today.toLocaleDateString('bn-BD', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-    );
-  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -30,8 +41,10 @@ export default function Navbar() {
       toast.success('সফলভাবে লগআউট হয়েছে');
       router.push('/');
       router.refresh();
-    } catch (err) {
-      toast.error('লগআউট করতে সমস্যা হয়েছে');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'লগআউট করতে সমস্যা হয়েছে',
+      );
     }
   };
 

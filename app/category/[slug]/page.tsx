@@ -27,7 +27,7 @@ export default function CategoryPage() {
         setError(false);
         const data = await getProducts(slug);
         setProducts(data);
-      } catch (err) {
+      } catch {
         setError(true);
       } finally {
         setLoading(false);

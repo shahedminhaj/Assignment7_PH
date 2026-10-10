@@ -9,14 +9,8 @@ import Link from 'next/link';
 export default function UpdateProfilePage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [name, setName] = useState('');
+  const [name, setName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (session?.user?.name) {
-      setName(session.user.name);
-    }
-  }, [session]);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -26,7 +20,8 @@ export default function UpdateProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    const updatedName = (name ?? session?.user?.name ?? '').trim();
+    if (!updatedName) {
       toast.error('নাম খালি রাখা যাবে না');
       return;
     }
@@ -34,7 +29,7 @@ export default function UpdateProfilePage() {
     setLoading(true);
     try {
       const { error } = await authClient.updateUser({
-        name: name,
+        name: updatedName,
       });
 
       if (error) {
@@ -44,8 +39,10 @@ export default function UpdateProfilePage() {
         router.push('/profile');
         router.refresh();
       }
-    } catch (err) {
-      toast.error('কিছু সমস্যা হয়েছে');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'আপডেট করতে সমস্যা হয়েছে',
+      );
     } finally {
       setLoading(false);
     }
@@ -75,7 +72,7 @@ export default function UpdateProfilePage() {
             <input
               type="text"
               required
-              value={name}
+              value={name ?? session.user.name ?? ''}
               onChange={(e) => setName(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="আপনার নাম"
