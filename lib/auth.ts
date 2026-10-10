@@ -43,6 +43,7 @@ function createAuth(db: Awaited<ReturnType<typeof getDb>>) {
     trustedOrigins: [...new Set(trustedOrigins)],
     emailAndPassword: {
       enabled: true,
+      minPasswordLength: 6,
     },
     socialProviders: {
       ...(googleClientId && googleClientSecret
