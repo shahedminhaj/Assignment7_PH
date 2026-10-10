@@ -18,6 +18,16 @@ A responsive Bengali-language market price app for checking everyday grocery pri
 - **React Hot Toast** — Toast notifications
 - **Bazar Dor Products API** — Product and category data
 
+## 🔐 Local Authentication Setup
+
+Copy `.env.example` to `.env.local`, then set `MONGODB_URI` to your MongoDB connection string and replace `BETTER_AUTH_SECRET` with a unique random secret of at least 32 characters. For example, generate one with:
+
+```sh
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+Set `BETTER_AUTH_URL` to the URL where the app is running. Google and GitHub sign-in are optional; add the corresponding client ID and secret to enable either provider. Restart the development server after changing environment variables. Keep `.env.local` private and never commit it.
+
 ## ✨ Key Features
 
 1. **Responsive Bengali UI** — Works seamlessly on mobile, tablet, and desktop with a Bengali-language interface.
@@ -27,4 +37,3 @@ A responsive Bengali-language market price app for checking everyday grocery pri
 5. **Protected Product Details Page** — Requires login. Shows min/max/average price and market-by-market price summary.
 6. **Price Ticker (Marquee)** — Infinite scrolling strip under the navbar with emoji + name + price + change percentage.
 7. **Profile Update** — Logged-in users can update their display name via Better Auth's update user API.
-
