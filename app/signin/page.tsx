@@ -11,6 +11,7 @@ function SignInForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'github' | null>(null);
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,26 +30,31 @@ function SignInForm() {
         router.push(redirect);
         router.refresh();
       }
-    } catch (err) {
-      toast.error('কিছু সমস্যা হয়েছে');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'লগইন করতে সমস্যা হয়েছে');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleSocialSignIn = async (provider: 'google' | 'github') => {
+    setSocialLoading(provider);
     try {
-      await authClient.signIn.social({ provider: 'google', callbackURL: redirect });
-    } catch (err) {
-      toast.error('Google সাইনইনে সমস্যা হয়েছে');
-    }
-  };
-
-  const handleGithubSignIn = async () => {
-    try {
-      await authClient.signIn.social({ provider: 'github', callbackURL: redirect });
-    } catch (err) {
-      toast.error('GitHub সাইনইনে সমস্যা হয়েছে');
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: redirect,
+      });
+      if (error) {
+        toast.error(error.message || `${provider} দিয়ে সাইন ইন করা যায়নি`);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : `${provider} দিয়ে সাইন ইন করা যায়নি`,
+      );
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -103,16 +109,20 @@ function SignInForm() {
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <button
-              onClick={handleGoogleSignIn}
+              type="button"
+              onClick={() => handleSocialSignIn('google')}
+              disabled={socialLoading !== null}
               className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 text-sm hover:bg-gray-50"
             >
-              Google
+              {socialLoading === 'google' ? 'অপেক্ষা করুন...' : 'Google'}
             </button>
             <button
-              onClick={handleGithubSignIn}
+              type="button"
+              onClick={() => handleSocialSignIn('github')}
+              disabled={socialLoading !== null}
               className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 text-sm hover:bg-gray-50"
             >
-              GitHub
+              {socialLoading === 'github' ? 'অপেক্ষা করুন...' : 'GitHub'}
             </button>
           </div>
         </div>

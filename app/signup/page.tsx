@@ -9,6 +9,7 @@ import { authClient } from '@/lib/auth-client';
 export default function SignUpPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'github' | null>(null);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,26 +28,33 @@ export default function SignUpPage() {
         toast.success('সফলভাবে রেজিস্ট্রেশন হয়েছে! এখন লগইন করুন।');
         router.push('/signin');
       }
-    } catch (err) {
-      toast.error('কিছু সমস্যা হয়েছে');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'রেজিস্ট্রেশন করতে সমস্যা হয়েছে',
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleSocialSignUp = async (provider: 'google' | 'github') => {
+    setSocialLoading(provider);
     try {
-      await authClient.signIn.social({ provider: 'google', callbackURL: '/' });
-    } catch (err) {
-      toast.error('Google সাইনআপে সমস্যা হয়েছে');
-    }
-  };
-
-  const handleGithubSignUp = async () => {
-    try {
-      await authClient.signIn.social({ provider: 'github', callbackURL: '/' });
-    } catch (err) {
-      toast.error('GitHub সাইনআপে সমস্যা হয়েছে');
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: '/',
+      });
+      if (error) {
+        toast.error(error.message || `${provider} দিয়ে সাইন আপ করা যায়নি`);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : `${provider} দিয়ে সাইন আপ করা যায়নি`,
+      );
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -113,16 +121,20 @@ export default function SignUpPage() {
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <button
-              onClick={handleGoogleSignUp}
+              type="button"
+              onClick={() => handleSocialSignUp('google')}
+              disabled={socialLoading !== null}
               className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 text-sm hover:bg-gray-50"
             >
-              Google
+              {socialLoading === 'google' ? 'অপেক্ষা করুন...' : 'Google'}
             </button>
             <button
-              onClick={handleGithubSignUp}
+              type="button"
+              onClick={() => handleSocialSignUp('github')}
+              disabled={socialLoading !== null}
               className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 text-sm hover:bg-gray-50"
             >
-              GitHub
+              {socialLoading === 'github' ? 'অপেক্ষা করুন...' : 'GitHub'}
             </button>
           </div>
         </div>

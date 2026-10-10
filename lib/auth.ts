@@ -3,30 +3,46 @@ import { mongodbAdapter } from '@better-auth/mongo-adapter';
 import { nextCookies } from 'better-auth/next-js';
 import { getDb } from './mongodb';
 
-let authInstance: any = null;
+function createAuth(db: Awaited<ReturnType<typeof getDb>>) {
+  const googleClientId = process.env.GOOGLE_CLIENT_ID;
+  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const githubClientId = process.env.GITHUB_CLIENT_ID;
+  const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+  return betterAuth({
+    database: mongodbAdapter(db),
+    baseURL: process.env.BETTER_AUTH_URL,
+    emailAndPassword: {
+      enabled: true,
+    },
+    socialProviders: {
+      ...(googleClientId && googleClientSecret
+        ? {
+            google: {
+              clientId: googleClientId,
+              clientSecret: googleClientSecret,
+            },
+          }
+        : {}),
+      ...(githubClientId && githubClientSecret
+        ? {
+            github: {
+              clientId: githubClientId,
+              clientSecret: githubClientSecret,
+            },
+          }
+        : {}),
+    },
+    plugins: [nextCookies()],
+  });
+}
+
+let authInstance: ReturnType<typeof createAuth> | null = null;
 
 export async function getAuth() {
   if (authInstance) return authInstance;
 
   const db = await getDb();
-
-  authInstance = betterAuth({
-    database: mongodbAdapter(db),
-    emailAndPassword: {
-      enabled: true,
-    },
-    socialProviders: {
-      google: {
-        clientId: process.env.GOOGLE_CLIENT_ID as string,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      },
-      github: {
-        clientId: process.env.GITHUB_CLIENT_ID as string,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-      },
-    },
-    plugins: [nextCookies()],
-  });
-
+  authInstance = createAuth(db);
   return authInstance;
 }

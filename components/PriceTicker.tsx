@@ -5,14 +5,17 @@ import { getProducts, Product } from '@/lib/api';
 
 export default function PriceTicker() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [fetchFailed, setFetchFailed] = useState(false);
 
   useEffect(() => {
     async function fetchTicker() {
       try {
         const data = await getProducts();
         setProducts(data);
+        setFetchFailed(false);
       } catch (err) {
         console.error('Ticker fetch failed', err);
+        setFetchFailed(true);
       }
     }
     fetchTicker();
@@ -21,7 +24,9 @@ export default function PriceTicker() {
   if (products.length === 0) {
     return (
       <div className="bg-gray-900 text-white py-2 overflow-hidden">
-        <div className="animate-pulse text-center text-sm">লোড হচ্ছে...</div>
+        <div className={`text-center text-sm ${fetchFailed ? '' : 'animate-pulse'}`}>
+          {fetchFailed ? 'দামের তথ্য সাময়িকভাবে পাওয়া যাচ্ছে না' : 'লোড হচ্ছে...'}
+        </div>
       </div>
     );
   }

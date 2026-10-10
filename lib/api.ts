@@ -1,4 +1,7 @@
-const BASE_URL = 'https://api.api-store.workers.dev/api/bazardor';
+const API_BASE_URLS = [
+  'https://api.api-store.workers.dev/api/bazardor',
+  'https://api.abcz.workers.dev/api/bazardor',
+];
 
 export interface ApiProduct {
   id: number;
@@ -52,17 +55,35 @@ function mapProduct(item: ApiProduct): Product {
   };
 }
 
+async function fetchApi<T>(path: string): Promise<T> {
+  let lastError: Error | undefined;
+
+  for (const baseUrl of API_BASE_URLS) {
+    try {
+      const res = await fetch(`${baseUrl}${path}`, { cache: 'no-store' });
+      if (!res.ok) {
+        lastError = new Error(`Product API returned ${res.status} for ${path}`);
+        continue;
+      }
+      return (await res.json()) as T;
+    } catch (error) {
+      lastError =
+        error instanceof Error ? error : new Error('Unknown product API error');
+    }
+  }
+
+  throw new Error(
+    `All product API endpoints failed for ${path}: ${lastError?.message ?? 'unknown error'}`,
+  );
+}
+
 export async function getProducts(category?: string): Promise<Product[]> {
-  const url = category ? `${BASE_URL}/products?category=${category}` : `${BASE_URL}/products`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch products');
-  const data: ApiProduct[] = await res.json();
+  const query = category ? `?category=${encodeURIComponent(category)}` : '';
+  const data = await fetchApi<ApiProduct[]>(`/products${query}`);
   return data.map(mapProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product> {
-  const res = await fetch(`${BASE_URL}/products/${slug}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch product');
-  const data: ApiProduct = await res.json();
+  const data = await fetchApi<ApiProduct>(`/products/${encodeURIComponent(slug)}`);
   return mapProduct(data);
 }

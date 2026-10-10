@@ -92,13 +92,13 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-2 text-gray-800">সব পণ্য</h2>
         <p className="text-gray-500 mb-6">প্রতিদিনের বাজারের সব পণ্যের দাম এক জায়গায়</p>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {Array.from({ length: 12 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {products.map((p) => (
               <ProductCard key={p.id} {...p} />
             ))}
