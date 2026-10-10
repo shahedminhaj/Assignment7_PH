@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Hero from '@/components/Hero';
-import PriceTicker from '@/components/PriceTicker';
 import ProductCard from '@/components/ProductCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import { getProducts, Product } from '@/lib/api';
@@ -48,7 +47,6 @@ export default function Home() {
 
   return (
     <>
-      <PriceTicker />
       <Hero />
 
       <section className="max-w-6xl mx-auto py-10 px-4">

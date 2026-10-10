@@ -3,6 +3,7 @@ import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PriceTicker from "@/components/PriceTicker";
 import { Toaster } from "react-hot-toast";
 
 const hindSiliguri = Hind_Siliguri({
@@ -25,6 +26,7 @@ export default function RootLayout({
         className={`${hindSiliguri.className} flex flex-col min-h-screen bg-gray-50`}
       >
         <Navbar />
+        <PriceTicker />
         <main className="flex-grow">{children}</main>
         <Footer />
         <Toaster position="top-right" />
