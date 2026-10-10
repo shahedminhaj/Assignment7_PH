@@ -100,6 +100,14 @@ export async function getProducts(category?: string): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product> {
-  const data = await fetchApi<ApiProduct>(`/products/${encodeURIComponent(slug)}`);
+  const products = await fetchApi<ApiProduct[]>('/products');
+  const product = products.find((item) => item.slug === slug);
+  if (!product) {
+    throw new Error(`Product not found: ${slug}`);
+  }
+
+  const data = await fetchApi<ApiProduct>(
+    `/products/${encodeURIComponent(String(product.id))}`,
+  );
   return mapProduct(data);
 }

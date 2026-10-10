@@ -1,4 +1,6 @@
-const API_BASE_URLS = [
+const API_PATH = '/api/bazardor';
+const FALLBACK_API_BASE_URLS = [
+  'https://openapi.programming-hero.com/api/bazardor',
   'https://api.api-store.workers.dev/api/bazardor',
   'https://api.abcz.workers.dev/api/bazardor',
 ];
@@ -18,10 +20,24 @@ type RouteContext = {
   params: Promise<{ path?: string[] }>;
 };
 
+function getApiBaseUrls(): string[] {
+  const configuredBaseUrl = process.env.PRODUCT_API_BASE_URL?.trim().replace(/\/+$/, '');
+  const configuredApiUrl = configuredBaseUrl
+    ? configuredBaseUrl.endsWith(API_PATH)
+      ? configuredBaseUrl
+      : `${configuredBaseUrl}${API_PATH}`
+    : null;
+
+  return [
+    ...(configuredApiUrl ? [configuredApiUrl] : []),
+    ...FALLBACK_API_BASE_URLS.filter((url) => url !== configuredApiUrl),
+  ];
+}
+
 async function fetchProducts(upstreamPath: string): Promise<CachedProductResponse> {
   let lastError = 'No product API endpoint responded';
 
-  for (const baseUrl of API_BASE_URLS) {
+  for (const baseUrl of getApiBaseUrls()) {
     try {
       const upstream = await fetch(`${baseUrl}${upstreamPath}`, {
         cache: 'force-cache',

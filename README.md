@@ -11,7 +11,7 @@ grocery prices, comparing market rates, and viewing product details.
 - Register and sign in with email/password, Google, or GitHub.
 - Manage your profile and update your display name.
 - Responsive Bengali UI with loading states and authentication notifications.
-- Product data automatically retries through the alternative API, deduplicates simultaneous requests, and serves recent cached prices during upstream rate limits.
+- Product data uses the Programming Hero API, retries through the alternative hosts, deduplicates simultaneous requests, and serves recent cached prices during upstream rate limits.
 
 ## Technologies
 
@@ -27,6 +27,16 @@ grocery prices, comparing market rates, and viewing product details.
 2. Copy `.env.example` to `.env.local` and fill in the required values.
 3. Start the app with `npm run dev`.
 4. Open [http://localhost:3000](http://localhost:3000).
+
+### Product API configuration
+
+The product proxy uses the Programming Hero Bazar Dor API by default, with the
+original documented API hosts as fallbacks. If you have a
+replacement API, set `PRODUCT_API_BASE_URL` to its origin (for example,
+`https://api.example.com`) or its full `/api/bazardor` base URL. The proxy adds
+`/api/bazardor` to an origin automatically and keeps the documented hosts as
+fallbacks. Product detail lookups use the product ID from the product list;
+the detail endpoint does not accept product slugs.
 
 ### Authentication configuration
 
