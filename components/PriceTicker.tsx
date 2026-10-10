@@ -13,8 +13,7 @@ export default function PriceTicker() {
         const data = await getProducts();
         setProducts(data);
         setFetchFailed(false);
-      } catch (err) {
-        console.error('Ticker fetch failed', err);
+      } catch {
         setFetchFailed(true);
       }
     }

@@ -11,7 +11,7 @@ grocery prices, comparing market rates, and viewing product details.
 - Register and sign in with email/password, Google, or GitHub.
 - Manage your profile and update your display name.
 - Responsive Bengali UI with loading states and authentication notifications.
-- Product data automatically retries through the alternative API if the primary endpoint is unavailable.
+- Product data automatically retries through the alternative API, deduplicates simultaneous requests, and serves recent cached prices during upstream rate limits.
 
 ## Technologies
 

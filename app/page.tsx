@@ -11,22 +11,23 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
+        setError(null);
         const data = await getProducts();
         setProducts(data);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError('ডেটা লোড করতে সমস্যা হয়েছে');
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [retryCount]);
 
   const risers = products.filter((p) => p.changeDir === 'up').slice(0, 6);
   const fallers = products.filter((p) => p.changeDir === 'down').slice(0, 6);
@@ -36,7 +37,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto py-20 text-center">
         <p className="text-red-500 text-lg">{error}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => setRetryCount((count) => count + 1)}
           className="mt-4 bg-green-600 text-white px-6 py-2 rounded-md"
         >
           আবার চেষ্টা করুন

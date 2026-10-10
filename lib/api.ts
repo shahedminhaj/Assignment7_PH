@@ -1,7 +1,12 @@
-const API_BASE_URLS = [
-  'https://api.api-store.workers.dev/api/bazardor',
-  'https://api.abcz.workers.dev/api/bazardor',
-];
+// Browser requests go through our own origin so the upstream API's CORS
+// configuration cannot prevent product data from loading.
+const API_BASE_URL = '/api';
+const CLIENT_CACHE_TTL_MS = 30_000;
+
+const productRequests = new Map<
+  string,
+  { promise: Promise<unknown>; expiresAt: number }
+>();
 
 export interface ApiProduct {
   id: number;
@@ -56,25 +61,36 @@ function mapProduct(item: ApiProduct): Product {
 }
 
 async function fetchApi<T>(path: string): Promise<T> {
-  let lastError: Error | undefined;
-
-  for (const baseUrl of API_BASE_URLS) {
-    try {
-      const res = await fetch(`${baseUrl}${path}`, { cache: 'no-store' });
-      if (!res.ok) {
-        lastError = new Error(`Product API returned ${res.status} for ${path}`);
-        continue;
-      }
-      return (await res.json()) as T;
-    } catch (error) {
-      lastError =
-        error instanceof Error ? error : new Error('Unknown product API error');
-    }
+  const now = Date.now();
+  const cached = productRequests.get(path);
+  if (cached && cached.expiresAt > now) {
+    return cached.promise as Promise<T>;
   }
 
-  throw new Error(
-    `All product API endpoints failed for ${path}: ${lastError?.message ?? 'unknown error'}`,
-  );
+  const promise = (async () => {
+    const res = await fetch(`${API_BASE_URL}${path}`);
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(
+        body?.error ?? `Product API returned ${res.status} for ${path}`,
+      );
+    }
+    return res.json();
+  })();
+
+  productRequests.set(path, {
+    promise,
+    expiresAt: now + CLIENT_CACHE_TTL_MS,
+  });
+
+  try {
+    return (await promise) as T;
+  } catch (error) {
+    if (productRequests.get(path)?.promise === promise) {
+      productRequests.delete(path);
+    }
+    throw error;
+  }
 }
 
 export async function getProducts(category?: string): Promise<Product[]> {
