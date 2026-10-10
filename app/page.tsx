@@ -91,7 +91,9 @@ export default function Home() {
 
       <section id="all-products" className="max-w-6xl mx-auto py-10 px-4">
         <h2 className="text-2xl font-bold mb-2 text-gray-800">সব পণ্য</h2>
-        <p className="text-gray-500 mb-6">প্রতিদিনের বাজারের সব পণ্যের দাম এক জায়গায়</p>
+        <p className="text-gray-500 mb-6">
+          মোট {loading ? '...' : products.length}টি পণ্য দেখানো হচ্ছে
+        </p>
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {Array.from({ length: 12 }).map((_, i) => (
